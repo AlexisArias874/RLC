@@ -1,0 +1,19 @@
+{# templates/partials/_navbar.html #}
+<nav class="navbar">
+    <div class="nav-left">
+        <a href="{{ url_for('index') }}" class="nav-brand-logo">
+            <!-- Puedes poner un SVG o una imagen de logo aquí si tienes una -->
+            <!-- Por ahora, un simple texto o un ícono de placeholder -->
+            <span class="logo-placeholder">N</span> <!-- Simula el logo circular con una letra -->
+            <span class="nav-brand-text">IGGER</span> {# O el nombre de tu sitio #}
+        </a>
+    </div>
+    <ul class="nav-center nav-links">
+        <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li> {# Mantenemos el de admin #}
+    </ul>
+    <div class="nav-right">
+        <a href="{{ url_for('index') }}" class="button nav-button-outline">Damian Archives</a>
+        <!-- <a href="#" class="search-icon"><img src="path/to/search-icon.svg" alt="Search"></a> -->
+        <span class="search-icon-placeholder">🔍</span> {# Placeholder para el ícono de búsqueda #}
+    </div>
+</nav>

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ 'Agregar' if action == 'add' else 'Editar' }} Episodio - {{ temporada.serie.titulo }} T{{ temporada.numero_temporada }}{% endblock %}
+
+{% block content %}
+    <h1>{{ 'Agregar Nuevo' if action == 'add' else 'Editar' }} Episodio para "{{ temporada.serie.titulo }} - {{ temporada.titulo_temporada if temporada.titulo_temporada else 'Temporada ' ~ temporada.numero_temporada }}"</h1>
+    <form method="POST" class="form-styled">
+        <div class="form-group">
+            <label for="numero_episodio">Número de Episodio:</label>
+            <input type="number" id="numero_episodio" name="numero_episodio" value="{{ episodio.numero_episodio if episodio else '' }}" required>
+        </div>
+        <div class="form-group">
+            <label for="titulo_episodio">Título del Episodio:</label>
+            <input type="text" id="titulo_episodio" name="titulo_episodio" value="{{ episodio.titulo_episodio if episodio else '' }}" required>
+        </div>
+        <div class="form-group">
+            <label for="descripcion">Descripción del Episodio (opcional):</label>
+            <textarea id="descripcion" name="descripcion" rows="3">{{ episodio.descripcion if episodio else '' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="url_video">URL del Video (Vimeo):</label>
+            <input type="url" id="url_video" name="url_video" value="{{ episodio.url_video if episodio else '' }}" placeholder="https://vimeo.com/ID_DEL_VIDEO" required>
+        </div>
+        <div class="form-group">
+            <label for="duracion_minutos">Duración (minutos, opcional):</label>
+            <input type="number" id="duracion_minutos" name="duracion_minutos" value="{{ episodio.duracion_minutos if episodio and episodio.duracion_minutos is not none else '' }}">
+        </div>
+        <button type="submit" class="button success">{{ 'Agregar' if action == 'add' else 'Guardar Cambios' }}</button>
+        <a href="{{ url_for('serie_detail', serie_id=temporada.serie_id) }}" class="button">Cancelar</a>
+    </form>
+{% endblock %}

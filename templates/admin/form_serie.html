@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ 'Agregar' if action == 'add' else 'Editar' }} Serie{% endblock %}
+
+{% block content %}
+    <h1>{{ 'Agregar Nueva' if action == 'add' else 'Editar' }} Serie</h1>
+    <form method="POST" class="form-styled">
+        <div class="form-group">
+            <label for="titulo">Título:</label>
+            <input type="text" id="titulo" name="titulo" value="{{ serie.titulo if serie else form_data.titulo if form_data else '' }}" required>
+        </div>
+        <div class="form-group">
+            <label for="descripcion">Descripción:</label>
+            <textarea id="descripcion" name="descripcion" rows="5">{{ serie.descripcion if serie else form_data.descripcion if form_data else '' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="poster_url">URL del Póster:</label>
+            <input type="url" id="poster_url" name="poster_url" value="{{ serie.poster_url if serie else form_data.poster_url if form_data else '' }}">
+        </div>
+        <div class="form-group">
+            <label for="fecha_lanzamiento">Fecha de Lanzamiento (YYYY-MM-DD):</label>
+            <input type="date" id="fecha_lanzamiento" name="fecha_lanzamiento" value="{{ (serie.fecha_lanzamiento.strftime('%Y-%m-%d') if serie and serie.fecha_lanzamiento else form_data.fecha_lanzamiento if form_data else '') }}">
+        </div>
+        <button type="submit" class="button success">{{ 'Agregar' if action == 'add' else 'Guardar Cambios' }}</button>
+        <a href="{{ url_for('manage_series') }}" class="button">Cancelar</a>
+    </form>
+{% endblock %}

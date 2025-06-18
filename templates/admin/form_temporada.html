@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ 'Agregar' if action == 'add' else 'Editar' }} Temporada - {{ serie.titulo }}{% endblock %}
+
+{% block content %}
+    <h1>{{ 'Agregar Nueva' if action == 'add' else 'Editar' }} Temporada para "{{ serie.titulo }}"</h1>
+    <form method="POST" class="form-styled">
+        <div class="form-group">
+            <label for="numero_temporada">Número de Temporada:</label>
+            <input type="number" id="numero_temporada" name="numero_temporada" value="{{ temporada.numero_temporada if temporada else '' }}" required>
+        </div>
+        <div class="form-group">
+            <label for="titulo_temporada">Título de la Temporada (opcional):</label>
+            <input type="text" id="titulo_temporada" name="titulo_temporada" value="{{ temporada.titulo_temporada if temporada else '' }}">
+        </div>
+        <button type="submit" class="button success">{{ 'Agregar' if action == 'add' else 'Guardar Cambios' }}</button>
+        <a href="{{ url_for('serie_detail', serie_id=serie.id) }}" class="button">Cancelar</a>
+    </form>
+{% endblock %}

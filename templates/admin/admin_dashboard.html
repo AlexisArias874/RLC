@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel de Administración{% endblock %}
+
+{% block content %}
+    <h1>Panel de Administración</h1>
+    <div class="admin-actions">
+        <a href="{{ url_for('manage_series') }}" class="button">Gestionar Series</a>
+        <p class="description">Ver, editar, eliminar series existentes y agregar nuevas temporadas o episodios desde la vista de detalle de cada serie.</p>
+    </div>
+    <div class="admin-actions">
+        <a href="{{ url_for('add_serie') }}" class="button">Agregar Nueva Serie</a>
+        <p class="description">Crear una entrada para una nueva serie en la plataforma.</p>
+    </div>
+    <!-- Podrías añadir más enlaces directos aquí si es necesario -->
+{% endblock %}

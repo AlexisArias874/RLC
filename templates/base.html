@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Plataforma de Series{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Puedes añadir Bootstrap o Tailwind si quieres para estilos rápidos -->
+</head>
+<body>
+    {% include 'partials/_navbar.html' %}
+    
+    <div class="container">
+        {% include 'partials/_flash_messages.html' %}
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>
+        <p>© {{ now.year if now else '' }} Mi Plataforma de Series</p>
+    </footer>
+    <script>
+        // Pequeño script para confirmación de borrado
+        function confirmDelete(event, message) {
+            if (!confirm(message || "¿Estás seguro de que quieres eliminar este elemento?")) {
+                event.preventDefault();
+            }
+        }
+    </script>
+</body>
+</html>

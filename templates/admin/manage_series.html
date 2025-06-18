@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Gestionar Series{% endblock %}
+
+{% block content %}
+    <h1>Gestionar Series</h1>
+    <a href="{{ url_for('add_serie') }}" class="button success">Agregar Nueva Serie</a>
+    
+    {% if series %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Póster</th>
+                <th>Título</th>
+                <th>Temporadas</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for serie in series %}
+            <tr>
+                <td>
+                    {% if serie.poster_url %}
+                        <img src="{{ serie.poster_url }}" alt="Poster" style="width: 50px; height: auto;">
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td><a href="{{ url_for('serie_detail', serie_id=serie.id) }}">{{ serie.titulo }}</a></td>
+                <td>{{ serie.temporadas|length }}</td>
+                <td>
+                    <a href="{{ url_for('edit_serie', serie_id=serie.id) }}" class="button-small">Editar</a>
+                    <a href="{{ url_for('add_temporada', serie_id=serie.id) }}" class="button-small">Añadir Temporada</a>
+                    <form action="{{ url_for('delete_serie', serie_id=serie.id) }}" method="POST" style="display:inline;" onsubmit="confirmDelete(event, '¿Seguro que quieres eliminar esta serie y todas sus temporadas y episodios?');">
+                        <button type="submit" class="button-small danger">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No hay series para gestionar. <a href="{{ url_for('add_serie') }}">¡Agrega una!</a></p>
+    {% endif %}
+{% endblock %}

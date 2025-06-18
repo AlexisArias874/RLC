@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}{% endblock %} {# Cambia el título si lo deseas #}
+
+{% block content %}
+    <div class="hero-section">
+        <div class="hero-content">
+            <div class="hero-logo">V</div> {# Puedes cambiar la letra o usar una imagen/SVG #}
+            <h1 class="hero-title">Video<br>Plataforma</h1> {# Puedes adaptar este texto #}
+            <p class="hero-subtitle"><a href="#series-section">Explorar Contenido →</a></p>
+        </div>
+        <div class="hero-image-container">
+            {# Reemplaza 'URL_DE_TU_IMAGEN_HERO' con una URL real de una imagen atractiva #}
+            {# Idealmente una imagen con buena resolución y que encaje con el tema #}
+            <img src="https://images.pexels.com/photos/1933873/pexels-photo-1933873.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Imagen destacada de la plataforma">
+            <div class="hero-image-overlay"></div>
+        </div>
+    </div>
+
+    {# Sección para la cuadrícula de series #}
+    <div id="series-section" class="series-list-container">
+        <h2>Nuestras Series</h2> {# Título para la sección de series #}
+        
+        {% if series %}
+            <div class="series-grid">
+                {% for serie in series %}
+                <a href="{{ url_for('serie_detail', serie_id=serie.id) }}" class="card series-card">
+                    {% if serie.poster_url %}
+                    <img src="{{ serie.poster_url }}" alt="Poster de {{ serie.titulo }}" class="series-poster">
+                    {% else %}
+                    <div class="series-poster-placeholder">{{ serie.titulo[0] if serie.titulo else 'S' }}</div> {# Placeholder con la primera letra del título #}
+                    {% endif %}
+                    <div class="series-info">
+                        <h2>{{ serie.titulo }}</h2>
+                        {% if serie.descripcion %}
+                        <p>{{ serie.descripcion[:80] ~ '...' if serie.descripcion|length > 80 else serie.descripcion }}</p>
+                        {% endif %}
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-series-message">No hay series disponibles en este momento. ¡Vuelve pronto!</p>
+        {% endif %}
+    </div>
+{% endblock %}
