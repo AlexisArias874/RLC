@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Explorar Series{% endblock %}
+
+{% block head_styles %}
+<style>
+    .page-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .page-header h1 {
+        font-size: 3rem;
+        font-weight: 900;
+        color: var(--text-color);
+    }
+    .series-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 30px;
+    }
+    .series-card {
+        background-color: #1a1a1a;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-decoration: none;
+        color: var(--text-color);
+    }
+    .series-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+    .series-poster {
+        width: 100%;
+        aspect-ratio: 2 / 3;
+        object-fit: cover;
+        background-color: #333; /* Color de fondo para placeholders */
+    }
+    .series-info {
+        padding: 15px;
+    }
+    .series-info h2 {
+        font-size: 1.2rem;
+        margin: 0 0 10px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .series-info p {
+        font-size: 0.9rem;
+        color: #aaa;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: 3.8em; /* Aprox. 3 líneas */
+    }
+    .no-series-message {
+        text-align: center;
+        font-size: 1.2rem;
+        color: #aaa;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Todas las Series</h1>
+</div>
+
+{% if series %}
+    <div class="series-grid">
+        {% for serie_item in series %}
+        <a href="{{ url_for('serie_detail', serie_id=serie_item.id) }}" class="series-card">
+            {% if serie_item.poster_url %}
+            <img src="{{ serie_item.poster_url }}" alt="Poster de {{ serie_item.titulo }}" class="series-poster">
+            {% else %}
+            {# Placeholder visualmente más agradable #}
+            <div class="series-poster" style="display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: bold; color: #555;">
+                {{ serie_item.titulo[0] if serie_item.titulo else 'S' }}
+            </div>
+            {% endif %}
+            <div class="series-info">
+                <h2>{{ serie_item.titulo }}</h2>
+                {% if serie_item.descripcion %}
+                <p>{{ serie_item.descripcion[:80] ~ '...' if serie_item.descripcion|length > 80 else serie_item.descripcion }}</p>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="no-series-message">No hay series disponibles. <a href="{{ url_for('add_serie') }}">¡Agrega la primera!</a></p>
+{% endif %}
+
+{% endblock %}

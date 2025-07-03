@@ -2,27 +2,105 @@
 
 {% block title %}Viendo: {{ episodio.titulo_episodio }}{% endblock %}
 
-{% block content %}
-    <h1>{{ episodio.temporada.serie.titulo }} - {{ episodio.temporada.titulo_temporada if episodio.temporada.titulo_temporada else 'Temporada ' ~ episodio.temporada.numero_temporada }}</h1>
-    <h2>Episodio {{ episodio.numero_episodio }}: {{ episodio.titulo_episodio }}</h2>
-    
-    <div class="video-container">
-        <iframe 
-            src="https://player.vimeo.com/video/{{ vimeo_id }}?h=HASH_OPCIONAL&autoplay=0&loop=0&title=0&byline=0&portrait=0" 
-            width="100%" 
-            height="560" 
-            frameborder="0" 
-            allow="autoplay; fullscreen; picture-in-picture" 
-            allowfullscreen>
-        </iframe>
-    </div>
-    
-    {% if episodio.descripcion %}
-    <div class="episode-description card">
-        <h3>Descripción del Episodio</h3>
-        <p>{{ episodio.descripcion }}</p>
-    </div>
-    {% endif %}
+{% block head_styles %}
+<style>
+    body > .container { display: none !important; }
+    .play-page-wrapper { display: flex; flex-direction: column; min-height: 100vh; background-color: #000; }
+    .player-main-container { flex-grow: 1; width: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
+    .play-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background-image: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent); z-index: 100; position: absolute; width: calc(100% - 80px); top: 0; left: 0; transition: opacity 0.4s ease; }
+    .play-header.hidden { opacity: 0; pointer-events: none; }
+    .header-info h1 { font-size: 1.2rem; font-weight: 700; margin: 0; color: #fff; }
+    .header-info h2 { font-size: 1rem; font-weight: 400; margin: 0; color: #ccc; }
+    .back-button { background-color: rgba(255, 255, 255, 0.1); padding: 10px 20px; border-radius: 20px; font-size: 0.9rem; transition: background-color 0.3s ease; }
+    .back-button:hover { background-color: rgba(255, 255, 255, 0.2); }
+    .video-container { width: 100%; height: 100%; }
+    .video-container iframe { width: 100%; height: 100%; border: none; }
+    .bottom-nav-bar { padding: 15px 40px; background-color: #121212; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .nav-button { display: flex; align-items: center; gap: 10px; background-color: rgba(255, 255, 255, 0.1); padding: 10px 20px; border-radius: 8px; font-weight: 700; transition: background-color 0.3s ease; }
+    .nav-button:hover { background-color: rgba(255, 255, 255, 0.2); }
+    .nav-button.disabled { opacity: 0.4; pointer-events: none; cursor: default; }
+    .nav-button .arrow { font-size: 1.5rem; }
+</style>
+{% endblock %}
 
-    <p><a href="{{ url_for('serie_detail', serie_id=episodio.temporada.serie_id) }}" class="button">« Volver a la lista de episodios</a></p>
+{% block body_content %}
+<div class="play-page-wrapper">
+    <main class="player-main-container">
+        <header class="play-header">
+            <div class="header-info">
+                <h1>{{ episodio.temporada.serie.titulo }}</h1>
+                <h2>T{{ episodio.temporada.numero_temporada }} E{{ episodio.numero_episodio }}: {{ episodio.titulo_episodio }}</h2>
+            </div>
+            <a href="{{ url_for('serie_detail', serie_id=episodio.temporada.serie_id) }}" class="back-button">« Volver a la lista</a>
+        </header>
+
+        <div class="video-container" id="videoPlayerWrapper"></div>
+    </main>
+
+    {# --- BARRA DE NAVEGACIÓN SIMPLIFICADA --- #}
+    <nav class="bottom-nav-bar">
+        <a href="{{ url_for('play_video', episodio_id=episodio_anterior.id) if episodio_anterior else '#' }}" 
+           class="nav-button {{ 'disabled' if not episodio_anterior }}">
+            <span class="arrow">←</span><span>Anterior</span>
+        </a>
+        
+        <a href="{{ url_for('edit_episodio', episodio_id=episodio.id) }}" class="nav-button">
+            <span>Editar Episodio</span>
+        </a>
+
+        <a href="{{ url_for('play_video', episodio_id=episodio_siguiente.id) if episodio_siguiente else '#' }}" 
+           class="nav-button {{ 'disabled' if not episodio_siguiente }}">
+            <span>Siguiente</span><span class="arrow">→</span>
+        </a>
+    </nav>
+</div>
+
+<script>
+    // Tu script de JavaScript para la reproducción se mantiene exactamente igual.
+    // ...
+const videoPlayerWrapper = document.getElementById('videoPlayerWrapper');
+
+function esUrlYouTube(url) { if (!url) return false; return /^(https?:\/\/)?(www\.)?(youtube\.com\/(embed\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/.test(url); }
+function obtenerYouTubeVideoID(url) { if (!url) return null; const patterns = [/(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,/(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})/,/(?:https?:\/\/)?youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/]; for (const p of patterns) { const m = url.match(p); if (m && m[1]) return m[1]; } return null; }
+function esUrlMegaEmbed(url) { if (!url) return false; return url.includes('mega.nz/embed/'); }
+function esUrlVimeo(url) { if (!url) return false; return url.includes('vimeo.com'); }
+function obtenerVimeoVideoID(url) { if (!url) return null; const vimeoRegex = /(?:player\.vimeo\.com\/video\/|vimeo\.com\/)([0-9]+)/; const match = url.match(vimeoRegex); return match ? match[1] : null; }
+
+function reproducirVideo(urlVideo) {
+    let reproductorHtml = '';
+    if (esUrlYouTube(urlVideo)) {
+        const videoID = obtenerYouTubeVideoID(urlVideo);
+        if (videoID) { reproductorHtml = `<iframe src="https://www.youtube.com/embed/${videoID}?autoplay=1&rel=0" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" frameborder="0" allowfullscreen></iframe>`; }
+    } else if (esUrlVimeo(urlVideo)) {
+        const videoID = obtenerVimeoVideoID(urlVideo);
+        if (videoID) { reproductorHtml = `<iframe src="https://player.vimeo.com/video/${videoID}?autoplay=1&title=0&byline=0&portrait=0" title="Vimeo video player" allow="autoplay; fullscreen; picture-in-picture" frameborder="0" allowfullscreen></iframe>`; }
+    } else if (esUrlMegaEmbed(urlVideo)) {
+        reproductorHtml = `<iframe src="${urlVideo}" title="Mega video player" allow="autoplay; fullscreen" frameborder="0" allowfullscreen></iframe>`;
+    }
+    if (reproductorHtml) { videoPlayerWrapper.innerHTML = reproductorHtml; } else { videoPlayerWrapper.innerHTML = '<p style="color: white; text-align: center; font-size: 1.2rem; padding: 20px;">Error: La URL del video no es compatible. Solo se aceptan enlaces de YouTube, Vimeo o Mega.</p>'; }
+}
+
+const playHeader = document.querySelector('.play-header');
+const bottomNavBar = document.querySelector('.bottom-nav-bar');
+const playerMainContainer = document.querySelector('.player-main-container');
+
+function ajustarAlturaVideo() {
+    const navBarHeight = bottomNavBar.offsetHeight;
+    playerMainContainer.style.height = `calc(100vh - ${navBarHeight}px)`;
+}
+
+let hideHeaderTimeout;
+if (playHeader) {
+    document.onmousemove = function() {
+        playHeader.classList.remove('hidden');
+        clearTimeout(hideHeaderTimeout);
+        hideHeaderTimeout = setTimeout(() => { playHeader.classList.add('hidden'); }, 3000);
+    }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    ajustarAlturaVideo();
+    reproducirVideo('{{ episodio.url_video | e }}');
+});
+window.onresize = ajustarAlturaVideo;
+</script>
 {% endblock %}

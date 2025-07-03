@@ -2,60 +2,208 @@
 
 {% block title %}{{ serie.titulo }}{% endblock %}
 
+{% block head_styles %}
+<style>
+    /* --- Sección del Héroe (Encabezado con Póster) --- */
+    .hero-serie {
+        position: relative;
+        min-height: 50vh;
+        display: flex;
+        align-items: flex-end;
+        padding: 40px;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 40px;
+    }
+
+    .hero-serie::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('{{ serie.poster_url or 'https://via.placeholder.com/1200x600?text=Sin+Imagen' }}');
+        background-size: cover;
+        background-position: center 20%;
+        filter: brightness(0.4);
+        z-index: 1;
+    }
+
+    .hero-serie::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60%;
+        background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+        z-index: 2;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 3;
+        max-width: 800px;
+    }
+
+    .hero-content h1 {
+        font-size: clamp(2.5rem, 8vw, 4rem);
+        font-weight: 900;
+        margin: 0 0 10px 0;
+        line-height: 1.1;
+        color: #fff;
+    }
+    
+    .hero-content p {
+        font-size: 1.1rem;
+        color: #ccc;
+        line-height: 1.6;
+        max-width: 65ch;
+    }
+
+    /* --- Vínculos de Administración --- */
+    .admin-links {
+        margin-top: 20px;
+    }
+    .admin-links a {
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 8px 15px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        margin-right: 10px;
+        transition: background-color 0.3s ease;
+    }
+    .admin-links a:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* --- Lista de Temporadas y Episodios --- */
+    .temporada-section h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #fff;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 10px;
+        margin-top: 50px;
+        margin-bottom: 25px;
+    }
+    
+    /* --- Nueva Cuadrícula de Episodios --- */
+    .episodios-grid {
+        display: grid;
+        /* Crea 3 columnas de igual tamaño, responsive */
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px; /* Espacio entre las tarjetas de episodio */
+    }
+
+    .episodio-card {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 20px;
+        border: 1px solid transparent;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 120px; /* Altura mínima para alinear tarjetas */
+    }
+
+    .episodio-card:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: var(--border-color);
+    }
+
+    .episodio-card-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .episodio-numero {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #888;
+        line-height: 1;
+    }
+    
+    .episodio-titulo {
+        font-size: 1.2rem;
+        font-weight: 700;
+        line-height: 1.3;
+        color: #fff;
+    }
+
+    .episodio-descripcion {
+        font-size: 0.9rem;
+        color: #aaa;
+        margin-top: 10px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* Limita la descripción a 2 líneas */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+</style>
+{% endblock %}
+
 {% block content %}
-    <div class="serie-header">
-        {% if serie.poster_url %}
-            <img src="{{ serie.poster_url }}" alt="Poster de {{ serie.titulo }}" class="serie-detail-poster">
-        {% endif %}
-        <div>
+<main>
+    <!-- Encabezado de la Serie -->
+    <section class="hero-serie">
+        <div class="hero-content">
             <h1>{{ serie.titulo }}</h1>
-            <p>{{ serie.descripcion }}</p>
-            {% if serie.fecha_lanzamiento %}
-            <p><strong>Lanzamiento:</strong> {{ serie.fecha_lanzamiento.strftime('%d/%m/%Y') }}</p>
+            {% if serie.descripcion %}
+                <p>{{ serie.descripcion }}</p>
             {% endif %}
-            <a href="{{ url_for('edit_serie', serie_id=serie.id) }}" class="button">Editar Serie</a>
-            <a href="{{ url_for('add_temporada', serie_id=serie.id) }}" class="button">Agregar Temporada</a>
+            <div class="admin-links">
+                <a href="{{ url_for('edit_serie', serie_id=serie.id) }}">Editar Serie</a>
+                <a href="{{ url_for('add_temporada', serie_id=serie.id) }}">Agregar Temporada</a>
+            </div>
         </div>
-    </div>
+    </section>
 
-    <h2>Temporadas</h2>
-    {% if serie.temporadas %}
-        {% for temporada in serie.temporadas|sort(attribute='numero_temporada') %}
-        <div class="temporada-section card">
-            <h3>
-                {{ temporada.titulo_temporada if temporada.titulo_temporada else 'Temporada ' ~ temporada.numero_temporada }}
-                <small>
-                    <a href="{{ url_for('edit_temporada', temporada_id=temporada.id) }}" class="button-small">Editar</a>
-                    <form action="{{ url_for('delete_temporada', temporada_id=temporada.id) }}" method="POST" style="display: inline;"  onsubmit="confirmDelete(event, '¿Seguro que quieres eliminar esta temporada y todos sus episodios?');">
-                        <button type="submit" class="button-small danger">Eliminar</button>
-                    </form>
-                </small>
-            </h3>
-            
-            <a href="{{ url_for('add_episodio', temporada_id=temporada.id) }}" class="button-small">Agregar Episodio a esta Temporada</a>
-
-            {% if temporada.episodios %}
-            <ul class="episodios-list">
-                {% for episodio in temporada.episodios|sort(attribute='numero_episodio') %}
-                <li>
-                    <a href="{{ url_for('play_video', episodio_id=episodio.id) }}">
-                        Ep. {{ episodio.numero_episodio }}: {{ episodio.titulo_episodio }}
+    <!-- Lista de Temporadas y Episodios -->
+    <section class="contenido-serie">
+        {% if serie.temporadas %}
+            {% for temporada in serie.temporadas|sort(attribute='numero_temporada') %}
+            <div class="temporada-section">
+                <h3>
+                    Temporada {{ temporada.numero_temporada }}
+                    {% if temporada.titulo_temporada %}: {{ temporada.titulo_temporada }}{% endif %}
+                    
+                    {# --- INICIO DE LA MODIFICACIÓN --- #}
+                    <span class="admin-links" style="font-size: 0.8em; margin-left: 15px;">
+                        <a href="{{ url_for('add_episodio', temporada_id=temporada.id) }}">Agregar Episodio</a>
+                    </span>
+                    {# --- FIN DE LA MODIFICACIÓN --- #}
+                </h3>
+                
+                {% if temporada.episodios %}
+                <div class="episodios-grid">
+                    {% for episodio in temporada.episodios|sort(attribute='numero_episodio') %}
+                    {# Cada episodio es ahora un enlace a la página de reproducción #}
+                    <a href="{{ url_for('play_video', episodio_id=episodio.id) }}" class="episodio-card">
+                        <div>
+                            <div class="episodio-card-header">
+                                <span class="episodio-numero">{{ episodio.numero_episodio }}</span>
+                                <span class="episodio-titulo">{{ episodio.titulo_episodio }}</span>
+                            </div>
+                            {% if episodio.descripcion %}
+                            <p class="episodio-descripcion">{{ episodio.descripcion }}</p>
+                            {% endif %}
+                        </div>
                     </a>
-                    <small>
-                        <a href="{{ url_for('edit_episodio', episodio_id=episodio.id) }}" class="button-small">Editar</a>
-                        <form action="{{ url_for('delete_episodio', episodio_id=episodio.id) }}" method="POST" style="display: inline;" onsubmit="confirmDelete(event);">
-                            <button type="submit" class="button-small danger">Eliminar</button>
-                        </form>
-                    </small>
-                </li>
-                {% endfor %}
-            </ul>
-            {% else %}
-            <p>No hay episodios en esta temporada.</p>
-            {% endif %}
-        </div>
-        {% endfor %}
-    {% else %}
-        <p>Esta serie aún no tiene temporadas.</p>
-    {% endif %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p>No hay episodios en esta temporada.</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>Esta serie aún no tiene temporadas.</p>
+        {% endif %}
+    </section>
+</main>
 {% endblock %}

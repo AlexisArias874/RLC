@@ -2,15 +2,74 @@
 
 {% block title %}Panel de Administración{% endblock %}
 
+{% block head_styles %}
+<style>
+    .admin-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+    .page-header h1 {
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .admin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    .admin-card {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 25px;
+        text-align: center;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    .admin-card:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: translateY(-5px);
+    }
+    .admin-card h2 {
+        margin: 0 0 15px 0;
+        font-size: 1.5rem;
+    }
+    .admin-card p {
+        color: #aaa;
+        font-size: 0.9rem;
+        margin-bottom: 25px;
+    }
+    .btn-primary {
+        display: inline-block;
+        background-color: #fff;
+        color: #000;
+        padding: 10px 25px;
+        border-radius: 20px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-    <h1>Panel de Administración</h1>
-    <div class="admin-actions">
-        <a href="{{ url_for('manage_series') }}" class="button">Gestionar Series</a>
-        <p class="description">Ver, editar, eliminar series existentes y agregar nuevas temporadas o episodios desde la vista de detalle de cada serie.</p>
+<div class="admin-container">
+    <div class="page-header">
+        <h1>Administración</h1>
     </div>
-    <div class="admin-actions">
-        <a href="{{ url_for('add_serie') }}" class="button">Agregar Nueva Serie</a>
-        <p class="description">Crear una entrada para una nueva serie en la plataforma.</p>
+    <div class="admin-grid">
+        <a href="{{ url_for('manage_series') }}" class="admin-card">
+            <h2>Gestionar Series</h2>
+            <p>Ver, editar o eliminar series existentes.</p>
+        </a>
+        <a href="{{ url_for('add_serie') }}" class="admin-card">
+            <h2>Agregar Nueva Serie</h2>
+            <p>Crear una nueva entrada para una serie en la plataforma.</p>
+        </a>
+        <a href="{{ url_for('index') }}" class="admin-card" style="grid-column: 1 / -1;">
+             <h2>Volver al Sitio Principal</h2>
+        </a>
     </div>
-    <!-- Podrías añadir más enlaces directos aquí si es necesario -->
+</div>
 {% endblock %}

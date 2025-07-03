@@ -3,28 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Plataforma de Series{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <!-- Puedes añadir Bootstrap o Tailwind si quieres para estilos rápidos -->
+    <!-- Google Font (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <title>{% block title %}Relic{% endblock %}</title>
+    
+    <style>
+        /* --- Variables de Color y Estilos Base --- */
+        :root {
+            --background-color: #000000;
+            --text-color: #ffffff;
+            --primary-color: #ffffff;
+            --border-color: rgba(255, 255, 255, 0.2);
+            --border-color-hover: rgba(255, 255, 255, 0.8);
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        a {
+            color: var(--text-color);
+            text-decoration: none;
+        }
+        
+        /* --- Barra de Navegación (Navbar) --- */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background-color: transparent;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-logo a {
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            font-weight: 700;
+            font-size: 1rem;
+            position: relative;
+            padding: 5px 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--text-color);
+            transform: scaleX(0);
+            transform-origin: bottom right;
+            transition: transform 0.3s ease-out;
+        }
+
+        .nav-links a:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+        
+        /* Contenedor principal */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 40px;
+        }
+        
+        /* Estilos para los mensajes flash */
+        .flash-messages { list-style: none; padding: 0; margin: 20px 40px; }
+        .flash-messages li { padding: 15px; margin-bottom: 15px; border-radius: 4px; border: 1px solid; }
+        .flash-messages .success { background-color: #28a74533; color: #a7e9b9; border-color: #28a745; }
+        .flash-messages .danger { background-color: #dc354533; color: #f8b4bd; border-color: #dc3545; }
+
+    </style>
+    {% block head_styles %}{% endblock %}
 </head>
 <body>
-    {% include 'partials/_navbar.html' %}
     
-    <div class="container">
-        {% include 'partials/_flash_messages.html' %}
-        {% block content %}{% endblock %}
-    </div>
+    {# --- LÓGICA PARA MOSTRAR/OCULTAR EL NAVBAR --- #}
+    {% if request.endpoint and request.endpoint != 'index' %}
+    <header class="navbar">
+        <div class="nav-logo">
+            <a href="{{ url_for('index') }}">Relic</a>
+        </div>
+        <nav class="nav-links">
+            <a href="{{ url_for('explorar_series') }}">Explorar</a>
+            <a href="{{ url_for('admin_dashboard') }}">Admin</a>
+        </nav>
+    </header>
+    {% endif %}
 
-    <footer>
-        <p>© {{ now.year if now else '' }} Mi Plataforma de Series</p>
-    </footer>
-    <script>
-        // Pequeño script para confirmación de borrado
-        function confirmDelete(event, message) {
-            if (!confirm(message || "¿Estás seguro de que quieres eliminar este elemento?")) {
-                event.preventDefault();
-            }
-        }
-    </script>
+    {% block body_content %}
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flash-messages">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    {% endblock %}
+
 </body>
 </html>

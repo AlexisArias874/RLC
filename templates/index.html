@@ -1,46 +1,138 @@
 {% extends 'base.html' %}
 
-{% block title %}{% endblock %} {# Cambia el título si lo deseas #}
+{% block title %}Bienvenido a TuPlataforma{% endblock %}
+
+{% block head_styles %}
+<style>
+    .landing-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: calc(100vh - 80px);
+        position: relative;
+        overflow: hidden;
+    }
+    .landing-header {
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+    .landing-main {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-grow: 1;
+        gap: 40px;
+        position: relative;
+    }
+    .headline {
+        font-size: clamp(3rem, 10vw, 6.5rem);
+        font-weight: 900;
+        line-height: 1.1;
+        max-width: 12ch;
+        z-index: 10;
+    }
+    .poster-grid-dynamic {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        transform: rotate(-15deg) scale(0.95);
+        opacity: 0.4;
+        position: absolute;
+        right: -15%;
+        top: 0%;
+        width: 65%;
+        z-index: 1;
+        pointer-events: none;
+    }
+    .poster-grid-dynamic img {
+        width: 100%;
+        border-radius: 8px;
+        aspect-ratio: 2 / 3;
+        object-fit: cover;
+    }
+    .action-boxes {
+        display: flex;
+        gap: 1px;
+        background-color: var(--border-color);
+        border: 1px solid var(--border-color);
+        padding: 0;
+        margin-top: 40px;
+        z-index: 10;
+    }
+    .action-box {
+        background-color: var(--background-color);
+        flex: 1;
+        padding: 20px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.3s ease;
+    }
+    .action-box:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    .action-box span {
+        font-size: 1rem;
+    }
+    .action-box .arrow {
+        font-size: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+    .action-box:hover .arrow {
+        transform: translateX(8px);
+    }
+    @media (max-width: 900px) {
+        .landing-main {
+            flex-direction: column;
+            text-align: center;
+            justify-content: center;
+        }
+        .poster-grid-dynamic {
+            display: none;
+        }
+        .action-boxes {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
 
 {% block content %}
-    <div class="hero-section">
-        <div class="hero-content">
-            <div class="hero-logo">V</div> {# Puedes cambiar la letra o usar una imagen/SVG #}
-            <h1 class="hero-title">Video<br>Plataforma</h1> {# Puedes adaptar este texto #}
-            <p class="hero-subtitle"><a href="#series-section">Explorar Contenido →</a></p>
-        </div>
-        <div class="hero-image-container">
-            {# Reemplaza 'URL_DE_TU_IMAGEN_HERO' con una URL real de una imagen atractiva #}
-            {# Idealmente una imagen con buena resolución y que encaje con el tema #}
-            <img src="https://images.pexels.com/photos/1933873/pexels-photo-1933873.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Imagen destacada de la plataforma">
-            <div class="hero-image-overlay"></div>
-        </div>
-    </div>
+<div class="landing-container">
+    <header class="landing-header">
+        Relic
+    </header>
 
-    {# Sección para la cuadrícula de series #}
-    <div id="series-section" class="series-list-container">
-        <h2>Nuestras Series</h2> {# Título para la sección de series #}
-        
-        {% if series %}
-            <div class="series-grid">
-                {% for serie in series %}
-                <a href="{{ url_for('serie_detail', serie_id=serie.id) }}" class="card series-card">
-                    {% if serie.poster_url %}
-                    <img src="{{ serie.poster_url }}" alt="Poster de {{ serie.titulo }}" class="series-poster">
+    <main class="landing-main">
+        <h1 class="headline">¿?</h1>
+
+        <div class="poster-grid-dynamic">
+            {% for serie_item in series %}
+                <a href="{{ url_for('serie_detail', serie_id=serie_item.id) }}">
+                    {% if serie_item.poster_url %}
+                        <img src="{{ serie_item.poster_url }}" alt="">
                     {% else %}
-                    <div class="series-poster-placeholder">{{ serie.titulo[0] if serie.titulo else 'S' }}</div> {# Placeholder con la primera letra del título #}
+                        <img src="https://via.placeholder.com/200x300.png?text={{ serie_item.titulo|replace(' ', '+') }}" alt="">
                     {% endif %}
-                    <div class="series-info">
-                        <h2>{{ serie.titulo }}</h2>
-                        {% if serie.descripcion %}
-                        <p>{{ serie.descripcion[:80] ~ '...' if serie.descripcion|length > 80 else serie.descripcion }}</p>
-                        {% endif %}
-                    </div>
                 </a>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p class="no-series-message">No hay series disponibles en este momento. ¡Vuelve pronto!</p>
-        {% endif %}
-    </div>
+            {% endfor %}
+        </div>
+    </main>
+    
+    <footer class="action-boxes">
+        <a href="{{ url_for('explorar_series') }}" class="action-box">
+            <span>Explorar Todas las Series</span>
+            <span class="arrow">→</span>
+        </a>
+        <a href="{{ url_for('add_serie') }}" class="action-box">
+            <span>Agregar Contenido</span>
+            <span class="arrow">→</span>
+        </a>
+        <a href="#" class="action-box">
+            <span>Iniciar Sesión</span>
+            <span class="arrow">→</span>
+        </a>
+    </footer>
+</div>
 {% endblock %}

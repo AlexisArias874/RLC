@@ -1,31 +1,60 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ 'Agregar' if action == 'add' else 'Editar' }} Episodio - {{ temporada.serie.titulo }} T{{ temporada.numero_temporada }}{% endblock %}
+{% block title %}{{ 'Editar' if action == 'edit' else 'Agregar' }} Episodio{% endblock %}
+
+{% block head_styles %}
+<style>
+    .admin-container { max-width: 800px; margin: 40px auto; padding: 20px; }
+    .page-header h1 { font-size: 2.5rem; font-weight: 900; margin-bottom: 10px; text-align: center; }
+    .page-header h2 { font-size: 1.5rem; font-weight: 400; color: #aaa; text-align: center; margin-bottom: 30px; }
+    .form-group { margin-bottom: 25px; }
+    .form-group label { display: block; font-weight: 700; margin-bottom: 8px; color: #ccc; }
+    .form-control { width: 100%; padding: 12px 15px; background-color: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 6px; color: #fff; font-size: 1rem; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+    .form-control:focus { outline: none; border-color: #fff; box-shadow: 0 0 10px rgba(255, 255, 255, 0.2); }
+    textarea.form-control { resize: vertical; min-height: 100px; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
+    .btn { display: inline-block; padding: 12px 25px; border-radius: 6px; text-decoration: none; font-weight: 700; transition: background-color 0.3s ease, color 0.3s ease; border: none; cursor: pointer; }
+    .btn-primary { background-color: #fff; color: #000; }
+    .btn-primary:hover { background-color: #ccc; }
+    .btn-secondary { background-color: rgba(255, 255, 255, 0.1); color: #fff; }
+    .btn-secondary:hover { background-color: rgba(255, 255, 255, 0.2); }
+    .form-field-info { font-size: 0.85em; color: #aaa; margin-top: 5px; }
+</style>
+{% endblock %}
 
 {% block content %}
-    <h1>{{ 'Agregar Nuevo' if action == 'add' else 'Editar' }} Episodio para "{{ temporada.serie.titulo }} - {{ temporada.titulo_temporada if temporada.titulo_temporada else 'Temporada ' ~ temporada.numero_temporada }}"</h1>
-    <form method="POST" class="form-styled">
+<div class="admin-container">
+    <div class="page-header">
+        <h1>{{ 'Editar' if action == 'edit' else 'Agregar' }} Episodio</h1>
+        <h2>{{ temporada.serie.titulo }} - Temporada {{ temporada.numero_temporada }}</h2>
+    </div>
+
+    <form method="POST">
         <div class="form-group">
-            <label for="numero_episodio">Número de Episodio:</label>
-            <input type="number" id="numero_episodio" name="numero_episodio" value="{{ episodio.numero_episodio if episodio else '' }}" required>
+            <label for="numero_episodio">Número de Episodio</label>
+            <input type="number" id="numero_episodio" name="numero_episodio" class="form-control" value="{{ episodio.numero_episodio if episodio else '' }}" required>
         </div>
         <div class="form-group">
-            <label for="titulo_episodio">Título del Episodio:</label>
-            <input type="text" id="titulo_episodio" name="titulo_episodio" value="{{ episodio.titulo_episodio if episodio else '' }}" required>
+            <label for="titulo_episodio">Título del Episodio</label>
+            <input type="text" id="titulo_episodio" name="titulo_episodio" class="form-control" value="{{ episodio.titulo_episodio if episodio else '' }}" required>
         </div>
         <div class="form-group">
-            <label for="descripcion">Descripción del Episodio (opcional):</label>
-            <textarea id="descripcion" name="descripcion" rows="3">{{ episodio.descripcion if episodio else '' }}</textarea>
+            <label for="url_video">URL del Video (Embed o Directa)</label>
+            <input type="url" id="url_video" name="url_video" class="form-control" value="{{ episodio.url_video if episodio else '' }}" placeholder="https://..." required>
+            <p class="form-field-info">Pega la URL de "Embed" de Vimeo, YouTube, etc., o una URL directa (.mp4).</p>
         </div>
         <div class="form-group">
-            <label for="url_video">URL del Video (Vimeo):</label>
-            <input type="url" id="url_video" name="url_video" value="{{ episodio.url_video if episodio else '' }}" placeholder="https://vimeo.com/ID_DEL_VIDEO" required>
+            <label for="duracion_minutos">Duración en minutos (Opcional)</label>
+            <input type="number" id="duracion_minutos" name="duracion_minutos" class="form-control" value="{{ episodio.duracion_minutos if episodio and episodio.duracion_minutos is not none else '' }}">
         </div>
         <div class="form-group">
-            <label for="duracion_minutos">Duración (minutos, opcional):</label>
-            <input type="number" id="duracion_minutos" name="duracion_minutos" value="{{ episodio.duracion_minutos if episodio and episodio.duracion_minutos is not none else '' }}">
+            <label for="descripcion">Descripción (Opcional)</label>
+            <textarea id="descripcion" name="descripcion" class="form-control">{{ episodio.descripcion if episodio else '' }}</textarea>
         </div>
-        <button type="submit" class="button success">{{ 'Agregar' if action == 'add' else 'Guardar Cambios' }}</button>
-        <a href="{{ url_for('serie_detail', serie_id=temporada.serie_id) }}" class="button">Cancelar</a>
+        <div class="form-actions">
+            <a href="{{ url_for('serie_detail', serie_id=temporada.serie.id) }}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">{{ 'Actualizar' if action == 'edit' else 'Guardar' }}</button>
+        </div>
     </form>
+</div>
 {% endblock %}
